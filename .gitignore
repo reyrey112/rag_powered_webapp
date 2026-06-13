@@ -1,6 +1,14 @@
 *.code-workspace
 /csv_exports
 /.vscode
+# airflow
+
+/airflow/*.cfg
+/airflow/*.db
+/airflow/*.db-shm
+/airflow/*.db-wal
+/airflow/*.json.generated
+/airflow/logs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
