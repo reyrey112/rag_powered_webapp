@@ -1,6 +1,6 @@
-# PubMed RAG Pipeline
+# PubMed RAG Comparison Pipeline
 
-An end-to-end data engineering and MLOps project that ingests biomedical research papers from PubMed, builds a Retrieval-Augmented Generation (RAG) system for scientific Q&A, and automates model evaluation and promotion — all orchestrated with Apache Airflow on Databricks.
+An end-to-end data engineering and MLOps project that ingests biomedical research papers from PubMed, builds a Retrieval-Augmented Generation (RAG) system for scientific Q&A, and automates embedding and generation model evaluation and promotion — all orchestrated with Apache Airflow on Databricks.
 
 ---
 
