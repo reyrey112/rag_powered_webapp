@@ -6,10 +6,10 @@ An end-to-end data engineering and MLOps project that ingests biomedical researc
 
 ## What it does
 
-Ask a natural language question and get an answer grounded in real PubMed research literature:
+Ask a natural language question and get an answer with PubMed research citations:
 
 > **"What factors reduce viscosity in protein formulations?"**
-> → Retrieves the most relevant research excerpts → Generates a grounded answer → Cites source papers
+> → Retrieves the most relevant research excerpts → Generates an answer → Cites source papers
 
 ---
 
@@ -225,3 +225,11 @@ airflow dags trigger dag_ingest_and_chunk
 - **NLP/ML** — embedding models, vector search, RAG architecture, LLM-as-judge evaluation
 - **Cloud** — Databricks jobs, serverless compute, Volumes, Vector Search endpoints
 - **Software engineering** — modular Python, argparse CLI, configurable pipelines, version-controlled jobs-as-code
+
+# Clone and set up everything in one command
+```bash
+git clone https://github.com/reyrey112/rag_pipeline
+cd rag_pipeline
+chmod +x setup.sh
+./setup.sh
+```
