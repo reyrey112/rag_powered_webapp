@@ -37,5 +37,6 @@ airflow variables set generation_model_name "google/flan-t5-base"
 airflow variables set generation_model_score "0"
 
 echo "Setup complete. Starting Airflow."
+uv run "$HOME/rag_pipeline/airflow/dags/util/production_configurations
 airflow standalone
 
