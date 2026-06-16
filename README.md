@@ -211,7 +211,7 @@ export AIRFLOW_HOME=~/rag_pipeline/airflow
 airflow standalone
 
 # Trigger the pipeline manually
-airflow dags trigger rag_pipeline
+airflow dags trigger dag_ingest_and_chunk
 ```
 
 ---
