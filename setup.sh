@@ -29,7 +29,7 @@ airflow connections add 'databricks_default' \
     --conn-host "$DATABRICKS_HOST" \
     --conn-password "$DATABRICKS_TOKEN"
 
-airflow variables set embedding_model_name "sentence-transformers/all-MiniLM-L6-v2"
+airflow variables set embedding_model_name "all-MiniLM-L6-v2"
 airflow variables set embedding_model_path "/Volumes/rag_pipeline/silver/models/all-MiniLM-L6-v2"
 airflow variables set embedding_dimension "384"
 airflow variables set embedding_model_hit_rate "0"
