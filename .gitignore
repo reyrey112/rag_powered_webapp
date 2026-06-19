@@ -1,3 +1,6 @@
+production.md
+production_issues.md
+
 *.code-workspace
 /csv_exports
 /.vscode
