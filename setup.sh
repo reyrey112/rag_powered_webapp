@@ -29,17 +29,32 @@ airflow connections add 'databricks_default' \
     --conn-host "$DATABRICKS_HOST" \
     --conn-password "$DATABRICKS_TOKEN"
 
-airflow variables set embedding_model_name "all-MiniLM-L6-v2"
-airflow variables set embedding_model_path "/Volumes/rag_pipeline/silver/models/all-MiniLM-L6-v2"
-airflow variables set embedding_dimension "384"
-airflow variables set embedding_model_hit_rate "0"
-airflow variables set generation_model_name "google/flan-t5-base"
-airflow variables set generation_model_score "0"
+
 airflow variables set databricks_host "$DATABRICKS_HOST"
 airflow variables set databricks_http_path "$DATABRICKS_HTTP_PATH"
 airflow variables set databricks_token "$DATABRICKS_TOKEN"
 
-echo "Setup complete. Starting Airflow."
-uv run "$HOME/rag_pipeline/airflow/dags/util/production_configurations.py
-airflow standalone
+echo "checking for production table"
+EXIT_CODE=0
+uv run "$HOME/rag_pipeline/airflow/dags/util/production_configurations.py" || EXIT_CODE=$?
 
+# Only set Airflow variables if the python script exited with 0 (table did not exist/was empty)
+if [ $EXIT_CODE -eq 0 ]; then
+    echo "Production table did not exist or was empty. Setting default Airflow variables"
+    airflow variables set embedding_model_name "all-MiniLM-L6-v2"
+    airflow variables set embedding_model_path "/Volumes/rag_pipeline/silver/models/all-MiniLM-L6-v2"
+    airflow variables set embedding_dimension "384"
+    airflow variables set embedding_model_hit_rate "0"
+    airflow variables set generation_model_name "google/flan-t5-base"
+    airflow variables set generation_model_score "0"
+    echo "Airflow variables successfully initialized."
+
+elif [ $EXIT_CODE -eq 3 ]; then
+    echo "Production table already exists with data. Skipping Airflow variable initialization."
+else
+    echo "Error: The production configuration check failed (Exit code: $EXIT_CODE)."
+    exit $EXIT_CODE
+fi
+
+echo "Setup complete. Starting Airflow."
+airflow standalone
