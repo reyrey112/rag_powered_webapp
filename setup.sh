@@ -22,6 +22,7 @@ airflow db migrate
 
 databricks secrets create-scope rag_pipeline 2>/dev/null || echo "Scope already exists, skipping"
 databricks secrets put-secret rag_pipeline GEMINI_API_KEY --string-value "$GEMINI_API_KEY"
+databricks secrets put-secret rag_pipeline EMAIL --string-value "$EMAIL"
 
 airflow connections delete databricks_default 2>/dev/null || true
 airflow connections add 'databricks_default' \
