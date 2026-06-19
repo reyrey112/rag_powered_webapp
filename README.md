@@ -159,11 +159,11 @@ At query time, the question is embedded with the same production model and the v
 ### Embedding Models Compared
 | Model | Dimensions | Hit Rate@5 | MRR |
 |---|---|---|---|
-| `all-MiniLM-L6-v2` | 384 | — | — |
-| `all-mpnet-base-v2` | 768 | — | — |
-| `allenai/specter2_base` | 768 | — | — |
+| `all-MiniLM-L6-v2` | 384 | - | - |
+| `all-mpnet-base-v2` | 768 | - | - |
+| `specter2_base` | 768 | - | - |
 
-*Results populated after evaluation runs — `specter2_base` expected to perform best on scientific text.*
+*Results populated after evaluation runs.*
 
 ### Generation Models Compared
 | Model | Avg Faithfulness | Avg Relevance | Avg Conciseness | Composite |
