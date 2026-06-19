@@ -35,6 +35,9 @@ airflow variables set embedding_dimension "384"
 airflow variables set embedding_model_hit_rate "0"
 airflow variables set generation_model_name "google/flan-t5-base"
 airflow variables set generation_model_score "0"
+airflow variables set databricks_host "$DATABRICKS_HOST"
+airflow variables set databricks_http_path "$DATABRICKS_HTTP_PATH"
+airflow variables set databricks_token "$DATABRICKS_TOKEN"
 
 echo "Setup complete. Starting Airflow."
 uv run "$HOME/rag_pipeline/airflow/dags/util/production_configurations.py
