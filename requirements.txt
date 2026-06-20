@@ -1,0 +1,8 @@
+streamlit
+databricks-sql-connector
+databricks-vectorsearch
+sentence-transformers
+transformers
+torch
+google
+python-dotenv
