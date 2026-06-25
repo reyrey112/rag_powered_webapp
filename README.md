@@ -98,40 +98,55 @@ Four DAGs coordinate the full system:
 
 ```
 rag_pipeline/
-├── setup.sh                         # Setup script 
-├── pipelines/
-│   └── pubmed_to_databricks.py      # PubMed ingestion + write to bronze tables
-├── steps/
-│   ├── pubmed_to_df.py              # Retrives articles using Pubmed API
-│   └── df_to_delta_table.py         # Write articles to Databricks
-├── databricks_notebooks/
-│   ├── abstracts_to_chunks.py       # Spark chunking using LangChain
-│   ├── chunks_to_embeddings.py      # HuggingFace Sentence Transformer embedding 
-│   ├── embeddings_to_vector.py      # Vector Search index creation/sync
-|   ├── rag_query.py                 # Retrieval + generation query layer
-|   ├── vector_index_test.py         # Test Successful vector indexing
-│   └── gradio.py                    # Interactive Gradio chat UI
-├── model_testing_notebooks/
-|   ├── generate_eval_set.py         # Synthetic Q&A generation with Gemini
-│   ├── evaluate_embedding_models.py # Embedding model comparison
-│   └── evaluate_generation_models.py# Generation model comparison
-├── databricks_jobs/                 # Databricks Job definitions
-│   ├── job_abstracts_to_chunks.py       
-│   ├── job_chunks_to_embeddings.py     
-│   ├── job_embeddings_to_vector.py      
-|   ├── job_generate_eval_set.py         
-│   ├── job_evaluate_embedding_models.py 
-│   └── job_evaluate_generation_models.py
 ├── airflow/
 │   └── dags/
-│       ├── dag_ingest_and_chunk.py           
 │       ├── dag_embed_and_vector.py
 │       ├── dag_embedding_model_promotion.py
-|       ├── dag_generation_model_promotion.py
-|       └── util/
-|           ├── get_job_ids.py               # Databricks job ID lookup for Dags
-|           └── production_config.py         # Config table create/read/write/rollback
+│       ├── dag_generation_model_promotion.py
+│       ├── dag_ingest_and_chunk.py
+│       └── util/
+│           ├── conversation_history.py
+│           ├── gemini_call.py
+│           ├── get_job_ids.py
+│           ├── interview_state.py
+│           ├── iterative_retrieval.py
+│           └── production_configurations.py
+├── databricks_jobs/
+│   ├── job_abstract_to_chunks.py
+│   ├── job_chunks_to_embeddings.py
+│   ├── job_embeddings_to_vector.py
+│   ├── job_evaluate_embedding_models.py
+│   ├── job_evaluate_generation_models.py
+│   ├── job_generate_evaluation_set.py
+│   └── job_pubmed_to_databricks.py
+├── databricks_notebooks/
+│   ├── abstracts_to_chunks.py
+│   ├── chunks_to_embeddings.py
+│   ├── embeddings_to_vector.py
+│   ├── gradio_chat.py
+│   ├── pubmed_to_databricks.py
+│   ├── rag_query.py
+│   ├── rag_query_sparkless.py
+│   ├── streamlit_app.py
+│   └── vector_index_test.py
+├── dbt/
+├── model_testing_notebooks/
+│   ├── evaluate_embedding_models.py
+│   ├── evaluate_generation_models.py
+│   └── generate_evaluation_set.py
+├── steps/
+│   ├── csv_to_databricks_volume.py
+│   ├── mysql_to_csv.py
+│   ├── volume_to_delta_table.py
+│   └── __init__.py
+├── Architecture.md
+├── README.md
+├── requirements.txt
+├── setup.sh
+└── pyproject.toml
 ```
+
+
 
 ---
 
