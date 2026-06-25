@@ -60,5 +60,8 @@ fi
 echo "checking for History table"
 uv run "$HOME/rag_pipeline/airflow/dags/util/conversation_history.py" 
 
+echo "checking for interview state table"
+uv run "$HOME/rag_pipeline/airflow/dags/util/interview_state.py" 
+
 echo "Setup complete. Starting Airflow."
 airflow standalone
