@@ -10,7 +10,7 @@ if util_path not in sys.path:
 
 from conversation_history import enrich_query
 from iterative_retrieval import iterative_retrieve
-from gemini_call import gemini_call
+from backend.tools.gemini_call import gemini_call
 from interview_state import (
     build_retrieval_query,
     build_generation_context,

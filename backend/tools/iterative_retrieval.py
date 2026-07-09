@@ -98,7 +98,7 @@ def assess_sufficiency(question: str, chunks: list, model=MODEL) -> dict:
         }
     """
 
-    from backend.legacy.gemini_call import gemini_call
+    from backend.tools.gemini_call import gemini_call
 
     if not chunks:
         return {
