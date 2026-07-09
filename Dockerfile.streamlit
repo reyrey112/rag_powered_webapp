@@ -1,0 +1,23 @@
+FROM python:3.14-slim
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /app
+
+COPY pyproject.toml uv.lock* ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --group frontend
+
+COPY frontend/streamlit_app.py ./
+COPY backend/api_client.py ./backend/api_client.py
+
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app"
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "streamlit_app.py", \
+     "--server.port=8501", \
+     "--server.address=0.0.0.0", \
+     "--server.headless=true", \
+     "--server.fileWatcherType=none"]

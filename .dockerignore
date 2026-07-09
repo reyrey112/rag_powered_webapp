@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.git/
+.gitignore
+.vscode
+airflow/
+databricks_notebooks/
+databricks_jobs/
+model_testing_notebooks/
+dbt/
+pipelines/
+steps/
+*.md
+*.sh
