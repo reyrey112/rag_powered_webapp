@@ -1,12 +1,12 @@
-# import pytest, os, sys
-# from unittest.mock import MagicMock, patch, ANY
-# from fastapi.testclient import TestClient
-# current_dir = os.path.dirname(os.path.abspath(__file__))
-# backend_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
-# if backend_root not in sys.path:
-#     sys.path.append(backend_root)
-# from main import app
-# from legacy.interview_state import InterviewState, INTERVIEW_CATEGORIES
+import pytest, os, sys
+from unittest.mock import MagicMock, patch, ANY
+from fastapi.testclient import TestClient
+current_dir = os.path.dirname(os.path.abspath(__file__))
+backend_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+if backend_root not in sys.path:
+    sys.path.append(backend_root)
+from main import app
+from legacy.interview_state import InterviewState, INTERVIEW_CATEGORIES
 
 # client = TestClient(app)
 
