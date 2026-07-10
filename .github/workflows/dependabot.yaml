@@ -1,4 +1,3 @@
-version: 2
 updates:
   # ── 1. Monitor your GitHub Actions ────────────────────────────────
   - package-ecosystem: "github-actions"
