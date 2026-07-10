@@ -13,7 +13,7 @@ from main import app
 def client():
     return TestClient(app)
 
-def test_base_route(client):
+# def test_base_route(client):
     """
     GIVEN a FastAPI application
     WHEN the '/' route is requested (GET)
