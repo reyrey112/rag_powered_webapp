@@ -1,0 +1,170 @@
+# .github/workflows/deploy.yml
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:   # manual trigger from GitHub UI
+
+env:
+  PROJECT_ID: rag-pipeline-501923
+  REGION: us-central1
+  REGISTRY: us-central1-docker.pkg.dev/rag-pipeline-501923/rag-pipeline
+
+jobs:
+  # ════════════════════════════════════════════════════════════════
+  # JOB 1 — Run tests
+  # Runs on every PR and push to main
+  # ════════════════════════════════════════════════════════════════
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"   # 3.14 not yet on GitHub Actions runners
+
+      - name: Install dependencies
+        run: uv sync --group api --group dev
+
+      - name: Run tests
+        run: uv run pytest tests/ -v --tb=short
+        env:
+          # Dummy values so modules that read env vars at import time don't crash
+          DATABRICKS_HOST: "https://dummy.azuredatabricks.net"
+          DATABRICKS_TOKEN: "dapi-dummy"
+          DATABRICKS_HTTP_PATH: "/sql/1.0/warehouses/dummy"
+          ANTHROPIC_API_KEY: "sk-ant-dummy"
+          GEMINI_API_KEY: "dummy"
+
+  # ════════════════════════════════════════════════════════════════
+  # JOB 2 — Build, push, and deploy
+  # Only runs on push to main (not PRs) and manual trigger
+  # Waits for tests to pass first
+  # ════════════════════════════════════════════════════════════════
+  deploy:
+    name: Build, push, and deploy
+    runs-on: ubuntu-latest
+    needs: test   # only runs if test job passes
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    permissions:
+      contents: read
+      id-token: write   # required for GCP Workload Identity auth
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      # ── Build and push API image ──────────────────────────────
+      - name: Build API image
+        run: |
+          docker build \
+            -t ${{ env.REGISTRY }}/api:${{ github.sha }} \
+            -t ${{ env.REGISTRY }}/api:latest \
+            -f backend/Dockerfile .
+
+      - name: Push API image
+        run: |
+          docker push ${{ env.REGISTRY }}/api:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/api:latest
+
+      # ── Build and push Streamlit image ────────────────────────
+      - name: Build Streamlit image
+        run: |
+          docker build \
+            -t ${{ env.REGISTRY }}/streamlit:${{ github.sha }} \
+            -t ${{ env.REGISTRY }}/streamlit:latest \
+            -f Dockerfile.streamlit .
+
+      - name: Push Streamlit image
+        run: |
+          docker push ${{ env.REGISTRY }}/streamlit:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/streamlit:latest
+
+      # ── Deploy API to Cloud Run ───────────────────────────────
+      - name: Deploy API to Cloud Run
+        run: |
+          gcloud run deploy rag-pipeline-api \
+            --image=${{ env.REGISTRY }}/api:${{ github.sha }} \
+            --platform=managed \
+            --region=${{ env.REGION }} \
+            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --min-instances=0 \
+            --max-instances=3 \
+            --memory=4Gi \
+            --cpu=2 \
+            --port=8000 \
+            --timeout=300 \
+            --set-secrets="DATABRICKS_HOST=DATABRICKS_HOST:latest,\
+          DATABRICKS_TOKEN=DATABRICKS_TOKEN:latest,\
+          DATABRICKS_HTTP_PATH=DATABRICKS_HTTP_PATH:latest,\
+          ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,\
+          GEMINI_API_KEY=GEMINI_API_KEY:latest" \
+            --no-allow-unauthenticated \
+            --quiet
+
+      # ── Get API URL for Streamlit deploy ─────────────────────
+      - name: Get API URL
+        id: api_url
+        run: |
+          URL=$(gcloud run services describe rag-pipeline-api \
+            --region=${{ env.REGION }} \
+            --format="value(status.url)")
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      # ── Deploy Streamlit to Cloud Run ─────────────────────────
+      - name: Deploy Streamlit to Cloud Run
+        run: |
+          gcloud run deploy rag-pipeline-streamlit \
+            --image=${{ env.REGISTRY }}/streamlit:${{ github.sha }} \
+            --platform=managed \
+            --region=${{ env.REGION }} \
+            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --min-instances=0 \
+            --max-instances=3 \
+            --memory=1Gi \
+            --cpu=1 \
+            --port=8501 \
+            --timeout=300 \
+            --session-affinity \
+            --set-env-vars="API_BASE_URL=${{ steps.api_url.outputs.url }}" \
+            --allow-unauthenticated \
+            --quiet
+
+      # ── Print deployed URLs ───────────────────────────────────
+      - name: Print deployed service URLs
+        run: |
+          echo "API:"
+          gcloud run services describe rag-pipeline-api \
+            --region=${{ env.REGION }} \
+            --format="value(status.url)"
+          echo "Streamlit:"
+          gcloud run services describe rag-pipeline-streamlit \
+            --region=${{ env.REGION }} \
+            --format="value(status.url)"
