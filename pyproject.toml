@@ -50,12 +50,5 @@ dev = [
 ]
 
 # Force CPU-only PyTorch — avoids pulling the 2GB CUDA build
-[tool.uv.sources]
-torch = { index = "pytorch-cpu" }
-torchvision = { index = "pytorch-cpu" }
-torchaudio = { index = "pytorch-cpu" }
-
-[[tool.uv.indexes]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
-explicit = true
+[tool.uv]
+torch-backend = "cpu"

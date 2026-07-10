@@ -39,7 +39,7 @@ jobs:
         run: uv sync --group api --group dev
 
       - name: Run tests
-        run: uv run pytest tests/ -v --tb=short
+        run: uv run pytest backend/tests/ -v --tb=short
         env:
           DATABRICKS_HOST: "https://dummy.azuredatabricks.net"
           DATABRICKS_TOKEN: "dapi-dummy"
