@@ -44,7 +44,6 @@ jobs:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-          ANTHROPIC_API_KEY: "sk-ant-dummy"
           GEMINI_API_KEY: "dummy"
 
   # ════════════════════════════════════════════════════════════════
@@ -114,7 +113,7 @@ jobs:
             --cpu=2 \
             --port=8000 \
             --timeout=300 \
-            --set-secrets="DATABRICKS_HOST=DATABRICKS_HOST:latest,DATABRICKS_TOKEN=DATABRICKS_TOKEN:latest,DATABRICKS_HTTP_PATH=DATABRICKS_HTTP_PATH:latest,ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest" \
+            --set-secrets="DATABRICKS_HOST=DATABRICKS_HOST:latest,DATABRICKS_TOKEN=DATABRICKS_TOKEN:latest,DATABRICKS_HTTP_PATH=DATABRICKS_HTTP_PATH:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest" \
             --no-allow-unauthenticated \
             --quiet
 
