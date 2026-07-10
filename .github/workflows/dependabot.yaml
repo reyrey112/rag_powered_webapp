@@ -1,0 +1,24 @@
+version: 2
+updates:
+  # ── 1. Monitor your GitHub Actions ────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly" # Checks for new action versions every week
+    open-pull-requests-limit: 3
+    groups:
+      # Groups all actions updates into one PR so your inbox doesn't explode
+      action-updates:
+        patterns:
+          - "*"
+
+  # ── 2. Monitor your Python Dependencies (uv / pip) ────────────────
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    groups:
+      python-updates:
+        patterns:
+          - "*"
