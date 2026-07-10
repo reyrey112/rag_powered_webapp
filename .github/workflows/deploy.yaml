@@ -41,9 +41,9 @@ jobs:
       - name: Run tests
         run: uv run pytest backend/tests/ -v --tb=short
         env:
-          DATABRICKS_HOST: "https://dummy.azuredatabricks.net"
-          DATABRICKS_TOKEN: "dapi-dummy"
-          DATABRICKS_HTTP_PATH: "/sql/1.0/warehouses/dummy"
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
           ANTHROPIC_API_KEY: "sk-ant-dummy"
           GEMINI_API_KEY: "dummy"
 
