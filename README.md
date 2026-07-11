@@ -2,7 +2,7 @@
 
 A biomedical retrieval web app using a FastAPI backend and Streamlit frontend deployed on Google Cloud Run for grounded question answering and experiment design workflows. This repository contains the application layer that talks to Databricks SQL and Databricks Vector Search, while using Gemini for answer generation and report synthesis.
 
-The implementation combines:
+The project combines:
 
 - a FastAPI backend for query and interview endpoints,
 - a Streamlit UI for interactive chat and report generation,
@@ -58,7 +58,7 @@ The app is served through Docker-based FastAPI and Streamlit containers, deploye
 
 ---
 
-## Key capabilities
+## Key Features
 
 ### Standard RAG workflow
 Chat retrieval endpoint:
@@ -90,7 +90,7 @@ The project includes Dockerfiles for both the API and Streamlit app, a Compose f
 
 ---
 
-## Repository structure
+## Project Structure
 
 ```text
 rag_powered_webapp/
