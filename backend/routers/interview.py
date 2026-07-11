@@ -6,7 +6,7 @@ if backend_root not in sys.path:
     sys.path.append(backend_root)
 
 from fastapi import APIRouter, HTTPException
-from models.requests import InterviewAnswerRequest, InterviewStartRequest
+from models.requests import InterviewAnswerRequest, InterviewStartRequest, InterviewReportRequest
 from models.responses import InterviewQuestionResponse, ReportResponse
 from legacy.interview_state import (
     InterviewState,
@@ -70,13 +70,20 @@ async def answer_interview(request: InterviewAnswerRequest):
 
 
 @router.post("/report", response_model=ReportResponse)
-async def generate_report(request: InterviewAnswerRequest):
+async def generate_report(request: InterviewReportRequest):
     state = load_interview_state(request.session_id)
     if not state:
         raise HTTPException(status_code=404, detail="No interview state found")
     result = experiment_design_query(state=state)
+    report = {
+        "report": result["report"],
+        "iterations": result["iterations"],
+        "sufficient": result["sufficient"],
+        "queries_used": result["queries_used"],
+    }
+    print(report)
     save_interview_state(request.session_id, InterviewState())  # reset
-    return ReportResponse(**result)
+    return ReportResponse(**report)
 
 
 @router.post("/should-start")
@@ -85,5 +92,3 @@ async def should_start(req: InterviewStartRequest):
     state = load_interview_state(req.session_id) or InterviewState()
     result = should_start_interview(req.prompt, state, history)
     return {"should_start": result}
-
-
