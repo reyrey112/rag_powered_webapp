@@ -58,7 +58,7 @@ The app is served through Docker-based FastAPI and Streamlit containers, deploye
 
 ---
 
-## Key capabilities
+## Key Features
 
 ### Standard RAG workflow
 Chat retrieval endpoint:
