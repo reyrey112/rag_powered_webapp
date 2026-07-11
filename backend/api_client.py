@@ -1,16 +1,29 @@
 import os
 import httpx
-
+import google.auth.transport.requests
+import google.oauth2.id_token
 API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000")
-TIMEOUT = 120  # Long for now for RAG calls
-
-# Unified HTTPX Client to keep persistent headers across all client calls
-client = httpx.Client(timeout=TIMEOUT)
+TIMEOUT  = 120
 
 
-def set_auth_token(token: str):
-    """Called by Streamlit container on start to mount the OIDC identity token."""
-    client.headers.update({"Authorization": f"Bearer {token}"})
+def _get_identity_token() -> str | None:
+    """
+    Fetches a GCP identity token for service-to-service auth.
+    Returns None when running locally (no metadata server available).
+    """
+    try:
+        auth_req = google.auth.transport.requests.Request()
+        token = google.oauth2.id_token.fetch_id_token(auth_req, API_BASE)
+        return token
+    except Exception:
+        return None
+
+
+def _headers() -> dict:
+    token = _get_identity_token()
+    if token:
+        return {"Authorization": f"Bearer {token}"}
+    return {}
 
 
 def query(prompt: str, session_id: str) -> dict:
