@@ -310,18 +310,20 @@ def should_start_interview(
     """
     # Already in an active interview — don't start another
     if state.active:
+        print("interview active")
         return False
 
     # Too short to be a research question
     if len(user_message.strip()) < 20:
+        print("message too short")
         return False
 
     # No history — first message is always a research question
     if not history:
+        print("has history")
         return True
 
-    # Has history — ask Claude if this is a new research question
-    # or a follow-up to the existing conversation
+    print("checking new or followup")
     return _is_new_research_question(user_message, history)
 
 
@@ -330,7 +332,7 @@ def _is_new_research_question(
     history: list[dict],
 ) -> bool:
     """
-    Asks Claude whether the message is a new research question
+    Asks Gemini whether the message is a new research question
     or a follow-up to the existing conversation.
     Returns True if it's a new research question.
     """
@@ -355,6 +357,7 @@ Respond with ONLY one word: NEW or FOLLOWUP"""
         response = gemini_call(client, prompt)
 
         result = response.text.strip().upper()
+        print(result)
         return result == "NEW"
 
     except Exception as e:
