@@ -90,7 +90,7 @@ The project includes Dockerfiles for both the API and Streamlit app, a Compose f
 
 ---
 
-## Repository structure
+## Project Structure
 
 ```text
 rag_powered_webapp/
