@@ -76,15 +76,3 @@ def check_should_interview(prompt: str, session_id: str) -> bool:
     r.raise_for_status()
     return r.json()["should_start"]
 
-
-def check_greeting(prompt: str) -> bool:
-    r = httpx.post(
-        f"{API_BASE}/interview/is-greeting",
-        json={
-            "prompt": prompt,
-            "session_id": "",
-        },
-        timeout=10,
-    )
-    r.raise_for_status()
-    return r.json()["is_greeting"]
