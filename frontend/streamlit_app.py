@@ -9,16 +9,39 @@ import uuid
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root = os.path.abspath(os.path.join(current_dir, ".."))
-backend_root = os.path.join(root, "backend")
-if backend_root not in sys.path:
-    sys.path.append(backend_root)
-
+if root not in sys.path:
+    sys.path.append(root)
 
 from backend import api_client as api
 
-#GCP Auth
+# GCP Auth
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
+
+GREETINGS = {
+    "hi",
+    "hello",
+    "hey",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "howdy",
+    "greetings",
+    "thanks",
+    "thank you",
+    "ok",
+    "okay",
+    "got it",
+    "sounds good",
+    "great",
+    "perfect",
+    "yes",
+    "no",
+    "sure",
+    "alright",
+    "cool",
+}
+
 
 def get_google_id_token() -> str:
     """
@@ -26,16 +49,17 @@ def get_google_id_token() -> str:
     """
     # Cloud Run populates API_BASE_URL via your deploy.yml file
     audience = os.environ.get("API_BASE_URL", "")
-    
+
     # Don't try hitting metadata server if running on local machine
     if not audience or "localhost" in audience or "127.0.0.1" in audience:
         return None
-        
+
     try:
         # Fetches token securely using the container's service account
         return id_token.fetch_id_token(Request(), audience)
     except Exception:
         return None
+
 
 # Fetch token and inject it directly into your backend client headers
 token = get_google_id_token()
@@ -62,11 +86,11 @@ if "messages" not in st.session_state:
 # Minimal interview state init
 if "interview" not in st.session_state:
     st.session_state.interview = {
-        "active":           False,
-        "complete":         False,
+        "active": False,
+        "complete": False,
         "report_generated": False,
-        "progress":         "Question 1 of 5",
-        "progress_ratio":   "0/5",
+        "progress": "Question 1 of 5",
+        "progress_ratio": "0/5",
     }
 interview = st.session_state.interview
 
@@ -157,7 +181,11 @@ def run_experiment_design():
             render_report(result)
             add_message("assistant", "Experiment design report generated above.")
             interview.update(
-                active=False, complete=True, report_generated=True, progress="Question 5 of 5", progress_ratio="5/5"
+                active=False,
+                complete=True,
+                report_generated=True,
+                progress="Question 5 of 5",
+                progress_ratio="5/5",
             )
 
 
@@ -184,16 +212,16 @@ def run_collect_answer(prompt: str):
         with st.spinner("Thinking..."):
             response = api.interview_answer(prompt, session_id)
 
-    if response["complete"]:
-        # All questions answered — generate report
-        with st.chat_message("assistant"):
+        if response["complete"]:
+            # All questions answered — generate report
+            # with st.chat_message("assistant"):
             msg = (
                 "Thank you — I have everything I need. Let me search the literature..."
             )
             st.markdown(msg)
-        add_message("assistant", msg)
+            add_message("assistant", msg)
 
-        with st.chat_message("assistant"):
+            # with st.chat_message("assistant"):
             with st.status(
                 "Building your experiment design...", expanded=True
             ) as status:
@@ -215,14 +243,18 @@ def run_collect_answer(prompt: str):
                 render_report(result)
                 add_message("assistant", "Experiment design report generated above.")
                 interview.update(
-                    active=False, complete=True, report_generated=True, progress=response["progress"], progress_ratio = response["progress_ratio"]
+                    active=False,
+                    complete=True,
+                    report_generated=True,
+                    progress=response["progress"],
+                    progress_ratio=response["progress_ratio"],
                 )
-    else:
-        # Next clarifying question
-        with st.chat_message("assistant"):
+        else:
+            # Next clarifying question
+            # with st.chat_message("assistant"):
             st.markdown(response["question"])
-        add_message("assistant", response["question"])
-        interview["progress"] = response["progress"]
+            add_message("assistant", response["question"])
+            interview["progress"] = response["progress"]
 
 
 def start_new_interview(prompt: str):
@@ -233,11 +265,15 @@ def start_new_interview(prompt: str):
             "Great research question! I have a few clarifying questions "
             "to help me find the most relevant literature.\n\n" + response["question"]
         )
+        interview.update(
+            active=True,
+            complete=False,
+            report_generated=False,
+            progress=response["progress"],
+            progress_ratio=response["progress_ratio"],
+        )
         st.markdown(opening)
     add_message("assistant", opening)
-    interview.update(
-        active=True, complete=False, report_generated=False, progress=response["progress"], progress_ratio = response["progress_ratio"]
-    )
 
 
 def run_regular_rag(prompt, session_id):
@@ -282,6 +318,24 @@ def run_regular_rag(prompt, session_id):
             add_message("assistant", result["answer"])
 
 
+def is_greeting_or_formality(message: str) -> bool:
+    """
+    Returns True if the message is a greeting, acknowledgment,
+    or other social formality that shouldn't trigger an interview.
+    """
+    cleaned = message.strip().lower().rstrip("!.,?")
+
+    # Exact match against known greetings
+    if cleaned in GREETINGS:
+        return True
+
+    # Short messages (under 15 chars) that aren't questions
+    if len(cleaned) < 15 and "?" not in cleaned:
+        return True
+
+    return False
+
+
 #  Handle new user input
 if prompt := st.chat_input("Ask a research question..."):
 
@@ -291,8 +345,9 @@ if prompt := st.chat_input("Ask a research question..."):
         st.markdown(prompt)
 
     # ── Path F: Greeting or formality ─────────────────────────────────────────
-    if api.check_greeting(prompt):
-        run_formality_call()
+    if not interview["active"]:
+        if is_greeting_or_formality(prompt):
+            run_formality_call()
 
     # ── Path A: Skip command ──────────────────────────────────────────────────
     elif is_skip(prompt) and interview["active"]:

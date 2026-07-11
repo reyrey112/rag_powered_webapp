@@ -7,30 +7,6 @@ from databricks import sql
 import json
 
 load_dotenv()
-GREETINGS = {
-    "hi",
-    "hello",
-    "hey",
-    "good morning",
-    "good afternoon",
-    "good evening",
-    "howdy",
-    "greetings",
-    "thanks",
-    "thank you",
-    "ok",
-    "okay",
-    "got it",
-    "sounds good",
-    "great",
-    "perfect",
-    "yes",
-    "no",
-    "sure",
-    "alright",
-    "cool",
-}
-
 
 INTERVIEW_CATEGORIES = [
     "system",
@@ -462,22 +438,7 @@ def build_generation_context(state: "InterviewState") -> str:
 
     return "\n".join(lines)
 
-def is_greeting_or_formality(message: str) -> bool:
-    """
-    Returns True if the message is a greeting, acknowledgment,
-    or other social formality that shouldn't trigger an interview.
-    """
-    cleaned = message.strip().lower().rstrip("!.,?")
 
-    # Exact match against known greetings
-    if cleaned in GREETINGS:
-        return True
-
-    # Short messages (under 15 chars) that aren't questions
-    if len(cleaned) < 15 and "?" not in cleaned:
-        return True
-
-    return False
 
 @dataclass
 class InterviewState:

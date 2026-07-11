@@ -14,7 +14,6 @@ from legacy.interview_state import (
     should_start_interview,
     save_interview_state,
     load_interview_state,
-    is_greeting_or_formality,
 )
 from legacy.rag_query_sparkless import experiment_design_query
 from legacy.conversation_history import read_history
@@ -88,6 +87,3 @@ async def should_start(req: InterviewStartRequest):
     return {"should_start": result}
 
 
-@router.post("/is-greeting")
-async def is_greeting(req: InterviewStartRequest):
-    return {"is_greeting": is_greeting_or_formality(req.prompt)}
