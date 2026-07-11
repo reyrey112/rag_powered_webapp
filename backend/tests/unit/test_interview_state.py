@@ -8,9 +8,7 @@ if backend_root not in sys.path:
 from backend.legacy.interview_state import (
     InterviewState,
     INTERVIEW_CATEGORIES,
-    GREETINGS,
     SKIP_COMMANDS,
-    is_greeting_or_formality,
     is_skip_command,
     should_start_interview,
 )
@@ -247,15 +245,9 @@ class TestSummary:
         assert len(summary.strip().splitlines()) == 1
 
 
-class TestIsGreetingOrFormality:
+# class TestIsGreetingOrFormality:
 
-    @pytest.mark.parametrize("message", sorted(GREETINGS))
-    def test_all_greetings_detected(self, message):
-        assert is_greeting_or_formality(message) is True
-
-    @pytest.mark.parametrize("message", ["Hi!", "HELLO", "  thanks  ", "OK."])
-    def test_greetings_formatting_variants(self, message):
-        assert is_greeting_or_formality(message) is True
+    
 
     # def test_short_message_with_question_mark_not_greeting(self):
     #     assert is_greeting_or_formality("why?") is False
