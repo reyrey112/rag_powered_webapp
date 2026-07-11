@@ -241,7 +241,6 @@ def run_collect_answer(prompt: str):
 
             if result:
                 render_report(result)
-                add_message("assistant", "Experiment design report generated above.")
                 interview.update(
                     active=False,
                     complete=True,
@@ -249,6 +248,8 @@ def run_collect_answer(prompt: str):
                     progress=response["progress"],
                     progress_ratio=response["progress_ratio"],
                 )
+                add_message("assistant", "Experiment design report generated above.")
+
         else:
             # Next clarifying question
             # with st.chat_message("assistant"):
@@ -345,9 +346,8 @@ if prompt := st.chat_input("Ask a research question..."):
         st.markdown(prompt)
 
     # ── Path F: Greeting or formality ─────────────────────────────────────────
-    if not interview["active"]:
-        if is_greeting_or_formality(prompt):
-            run_formality_call()
+    if is_greeting_or_formality(prompt) and not interview["active"]:
+        run_formality_call()
 
     # ── Path A: Skip command ──────────────────────────────────────────────────
     elif is_skip(prompt) and interview["active"]:
