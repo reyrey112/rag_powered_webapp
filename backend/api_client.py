@@ -2,8 +2,9 @@ import os
 import httpx
 import google.auth.transport.requests
 import google.oauth2.id_token
+
 API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000")
-TIMEOUT  = 120
+TIMEOUT = 120
 
 
 def _get_identity_token() -> str | None:
@@ -33,6 +34,7 @@ def query(prompt: str, session_id: str) -> dict:
             "prompt": prompt,
             "session_id": session_id,
         },
+        headers=_headers(),
         timeout=TIMEOUT,
     )
     r.raise_for_status()
@@ -46,6 +48,7 @@ def interview_start(prompt: str, session_id: str) -> dict:
             "prompt": prompt,
             "session_id": session_id,
         },
+        headers=_headers(),
         timeout=TIMEOUT,
     )
     r.raise_for_status()
@@ -59,6 +62,7 @@ def interview_answer(answer: str, session_id: str) -> dict:
             "answer": answer,
             "session_id": session_id,
         },
+        headers=_headers(),
         timeout=TIMEOUT,
     )
     r.raise_for_status()
@@ -71,6 +75,7 @@ def interview_report(session_id: str) -> dict:
         json={
             "session_id": session_id,
         },
+        headers=_headers(),
         timeout=TIMEOUT,
     )
     r.raise_for_status()
@@ -84,8 +89,8 @@ def check_should_interview(prompt: str, session_id: str) -> bool:
             "prompt": prompt,
             "session_id": session_id,
         },
+        headers=_headers(),
         timeout=30,
     )
     r.raise_for_status()
     return r.json()["should_start"]
-
