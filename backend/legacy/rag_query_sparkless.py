@@ -1,4 +1,4 @@
-import os, getpass, sys
+import os, getpass, sys, threading
 from databricks.vector_search.client import VectorSearchClient
 from sentence_transformers import SentenceTransformer
 
@@ -23,7 +23,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-_gemini_client = None
 
 def _parse_section(text: str, tag: str) -> str:
     """
@@ -41,19 +40,7 @@ def _parse_section(text: str, tag: str) -> str:
 
     return text[start + len(open_tag):end].strip()
 
-def _get_gemini_client():
 
-    global _gemini_client
-    if _gemini_client is None:
-        from google import genai
-
-        try:
-            api_key = dbutils.secrets.get(scope="rag_pipeline", key="GEMINI_API_KEY")
-
-        except NameError as e:
-            api_key = os.environ.get("GEMINI_API_KEY")
-        _gemini_client = genai.Client(api_key=api_key)
-    return _gemini_client
 
 
 def get_latest_config():
@@ -109,12 +96,32 @@ _embed_model = None
 _model = None
 _tokenizer = None
 _vsc = None
+_gemini_client = None
+_model_lock = threading.Lock()
+_embed_model_lock = threading.Lock()
+_vsc_lock = threading.Lock()
+_gemini_client_lock = threading.Lock()
 
+def _get_gemini_client():
+    global _gemini_client
+    if _gemini_client is None:
+        with _gemini_client_lock:
+            if _gemini_client is None:
+                from google import genai
+ 
+                try:
+                    api_key = dbutils.secrets.get(scope="rag_pipeline", key="GEMINI_API_KEY")
+                except NameError as e:
+                    api_key = os.environ.get("GEMINI_API_KEY")
+                _gemini_client = genai.Client(api_key=api_key)
+    return _gemini_client
 
 def get_embed_model():
     global _embed_model
     if _embed_model is None:
-        _embed_model = SentenceTransformer(EMBED_MODEL_NAME)
+        with _embed_model_lock:
+            if _embed_model is None:
+                _embed_model = SentenceTransformer(EMBED_MODEL_NAME)
     return _embed_model
 
 
@@ -122,17 +129,23 @@ def get_model_and_tokenizer():
     """Explicitly loads model and tokenizer to replace legacy text2text-generation pipeline."""
     global _model, _tokenizer
     if _model is None or _tokenizer is None:
-        from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-
-        _tokenizer = AutoTokenizer.from_pretrained(GEN_MODEL_NAME)
-        _model = AutoModelForSeq2SeqLM.from_pretrained(GEN_MODEL_NAME)
+        with _model_lock:
+            # Re-check inside the lock: another thread may have finished
+            # loading while this thread was waiting to acquire the lock.
+            if _model is None or _tokenizer is None:
+                from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+ 
+                _tokenizer = AutoTokenizer.from_pretrained(GEN_MODEL_NAME)
+                _model = AutoModelForSeq2SeqLM.from_pretrained(GEN_MODEL_NAME)
     return _model, _tokenizer
 
 
 def get_vsc():
     global _vsc
     if _vsc is None:
-        _vsc = VectorSearchClient()
+        with _vsc_lock:
+            if _vsc is None:
+                _vsc = VectorSearchClient()
     return _vsc
 
 
