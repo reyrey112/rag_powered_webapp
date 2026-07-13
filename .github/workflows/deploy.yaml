@@ -141,7 +141,6 @@ jobs:
             --port=8501 \
             --timeout=300 \
             --session-affinity \
-            --set-env-vars="API_BASE_URL=${{ steps.api_url.outputs.url }}" \
             --allow-unauthenticated \
             --quiet
 
