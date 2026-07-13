@@ -14,9 +14,9 @@ if root not in sys.path:
 
 from backend import api_client as api
 
-# GCP Auth
-from google.auth.transport.requests import Request
-from google.oauth2 import id_token
+# # GCP Auth
+# from google.auth.transport.requests import Request
+# from google.oauth2 import id_token
 
 GREETINGS = {
     "hi",
@@ -43,29 +43,29 @@ GREETINGS = {
 }
 
 
-def get_google_id_token() -> str:
-    """
-    Fetches an OIDC ID token from the Cloud Run metadata server at runtime.
-    """
-    # Cloud Run populates API_BASE_URL via your deploy.yml file
-    audience = os.environ.get("API_BASE_URL", "")
+# def get_google_id_token() -> str:
+#     """
+#     Fetches an OIDC ID token from the Cloud Run metadata server at runtime.
+#     """
+#     # Cloud Run populates API_BASE_URL via your deploy.yml file
+#     audience = os.environ.get("API_BASE_URL", "")
 
-    # Don't try hitting metadata server if running on local machine
-    if not audience or "localhost" in audience or "127.0.0.1" in audience:
-        return None
+#     # Don't try hitting metadata server if running on local machine
+#     if not audience or "localhost" in audience or "127.0.0.1" in audience:
+#         return None
 
-    try:
-        # Fetches token securely using the container's service account
-        return id_token.fetch_id_token(Request(), audience)
-    except Exception:
-        return None
+#     try:
+#         # Fetches token securely using the container's service account
+#         return id_token.fetch_id_token(Request(), audience)
+#     except Exception:
+#         return None
 
 
-# Fetch token and inject it directly into your backend client headers
-token = get_google_id_token()
-if token:
-    # This dynamically configures your api client instance to use the token
-    api.set_auth_token(token)
+# # Fetch token and inject it directly into your backend client headers
+# token = get_google_id_token()
+# if token:
+#     # This dynamically configures your api client instance to use the token
+#     api.set_auth_token(token)
 
 # Configs
 
