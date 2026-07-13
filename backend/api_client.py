@@ -3,7 +3,7 @@ import httpx
 import google.auth.transport.requests
 import google.oauth2.id_token
 
-API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000")
+API_BASE = os.environ.get("API_BASE_URL", "https://api.insight4data.com")
 TIMEOUT = 120
 
 
