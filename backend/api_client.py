@@ -3,7 +3,7 @@ import httpx
 import google.auth.transport.requests
 import google.oauth2.id_token
 
-API_BASE = os.environ.get("API_BASE_URL", "https://api.insight4data.com")
+API_AUDIENCE = os.environ.get("API_AUDIENCE", "http://localhost:8000")
 TIMEOUT = 120
 
 
@@ -14,7 +14,7 @@ def _get_identity_token() -> str | None:
     """
     try:
         auth_req = google.auth.transport.requests.Request()
-        token = google.oauth2.id_token.fetch_id_token(auth_req, API_BASE)
+        token = google.oauth2.id_token.fetch_id_token(auth_req, API_AUDIENCE)
         return token
     except Exception:
         return None

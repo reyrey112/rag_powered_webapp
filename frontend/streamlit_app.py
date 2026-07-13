@@ -13,8 +13,7 @@ if root not in sys.path:
     sys.path.append(root)
 
 from backend import api_client as api
-API_BASE = os.environ.get("API_BASE_URL", "https://api.insight4data.com")
-
+API_BASE     = os.environ.get("API_BASE_URL", "http://localhost:8000")
 import time
 
 def _wait_for_api(retries: int = 10, delay: int = 5) -> bool:
