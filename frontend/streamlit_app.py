@@ -13,23 +13,26 @@ if root not in sys.path:
     sys.path.append(root)
 
 from backend import api_client as api
-API_BASE     = os.environ.get("API_BASE_URL", "http://localhost:8000")
+
+API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000")
 import time
 
+
 def _wait_for_api(retries: int = 10, delay: int = 5) -> bool:
-    """
-    Polls /health until the API is ready or retries are exhausted.
-    Shows a spinner in the UI while waiting.
-    """
     for attempt in range(retries):
         try:
-            r = httpx.get(f"{API_BASE}/health", timeout=5)
+            r = httpx.get(
+                f"{API_BASE}/health",
+                headers=api._headers(),
+                timeout=5,
+            )
             if r.status_code == 200:
                 return True
         except Exception:
             pass
         time.sleep(delay)
     return False
+
 
 # At the top of streamlit_app.py, before any chat UI renders:
 if "api_ready" not in st.session_state:

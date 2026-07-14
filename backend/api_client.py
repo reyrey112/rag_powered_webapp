@@ -3,6 +3,8 @@ import httpx, logging
 import google.auth.transport.requests
 import google.oauth2.id_token
 
+API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000")
+
 API_AUDIENCE = os.environ.get("API_AUDIENCE", "http://localhost:8000")
 TIMEOUT = 120
 
@@ -15,12 +17,12 @@ def _get_identity_token() -> str | None:
     try:
         auth_req = google.auth.transport.requests.Request()
         token = google.oauth2.id_token.fetch_id_token(auth_req, API_AUDIENCE)
-        
+
         print(f"Token audience: {API_AUDIENCE}")
         logging.debug(f"{API_AUDIENCE}")
         print(f"Token fetched successfully: {token[:20]}...")
         logging.debug(f"Token fetched successfully: {token[:20]}...")
-        
+
         return token
     except Exception:
         return None
